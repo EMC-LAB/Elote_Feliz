@@ -43,7 +43,7 @@ app.get('/webhooks/whatsapp',(req,res)=>{
 app.use(express.json({limit:'80kb'}));
 // Archivos internos no se exponen como contenido estático público.
 app.use(['/src','/db','/scripts'],(req,res)=>res.sendStatus(404));
-app.use(express.static(root,{extensions:['html'],index:'index.html',maxAge:process.env.NODE_ENV==='production'?'1h':0}));
+app.use(express.static(root,{extensions:['html'],index:'index.html',maxAge:'1h',setHeaders:(res,filePath)=>{if(/\.(?:html|js|css)$/i.test(filePath))res.setHeader('Cache-Control','no-cache');}}));
 app.get('/api/health',async(req,res)=>{if(!hasDB)return res.json({server:true,database:false,live:false});try{await pool.query('select 1');return res.json({server:true,database:true,live:true})}catch{return jsonError(res,503,'Base de datos sin conexión')}});
 app.get('/api/config',(req,res)=>res.json({whatsapp:detectPhone(process.env.WHATSAPP_NUMBER),onlineOrders:process.env.ALLOW_PUBLIC_ORDERS==='true'&&hasDB}));
 const dbRequired=(req,res,next)=>hasDB?next():jsonError(res,503,'Base de datos pendiente de configurar');
