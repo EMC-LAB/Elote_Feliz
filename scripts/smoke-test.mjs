@@ -3,10 +3,25 @@ import vm from 'node:vm';
 import assert from 'node:assert/strict';
 
 const script=fs.readFileSync(new URL('../assets/js/app.js',import.meta.url),'utf8');
+const testAdapter=[
+ "globalThis.__efTests={",
+ "setOrder:(items,name='',notes='')=>{",
+ "order.splice(0,order.length,...items);",
+ "$('#buyerName').value=name;$('#buyerNotes').value=notes;",
+ "$('input[name=\"payment\"]:checked').value='Efectivo';",
+ "return {total:subtotal(),message:orderMessage()};",
+ "},",
+ "getCatalog:()=>catalog.map(p=>({id:p.id,price:p.price})),",
+ "getToppings:()=>TOPPINGS",
+ "};"
+].join('\n');
+const instrumented=script.replace(/\}\)\(\);\s*$/,testAdapter+'})();');
+assert.notEqual(instrumented,script,'La prueba debe insertar controles antes del cierre de la aplicación');
+
 function checkPage(page){
  const nodes=new Map();
  const mockNode=(name)=>{
-  if(!nodes.has(name)) nodes.set(name,{
+  if(!nodes.has(name))nodes.set(name,{
    innerHTML:'',textContent:'',src:'',href:'',hidden:false,value:'',checked:false,
    style:{},dataset:{},id:name,onclick:null,onchange:null,
    classList:{add(){},remove(){},toggle(){},contains(){return false}},
@@ -28,12 +43,9 @@ function checkPage(page){
   document:doc,window:{ELOTE_WHATSAPP:'525539100036',addEventListener(){}},
   localStorage:{getItem(key){return key==='ef_catalog_demo_v3'?JSON.stringify([{id:'elote',name:'Elote',price:1,cat:'elotes',img:'elote'}]):null},setItem(){}},
   location:{hash:'',href:''},navigator:{},console,
-  setTimeout(){return 0},clearTimeout(){},
+  setTimeout(){return 0},clearTimeout(){}
  };
- const marker='})();';
- const cut=script.lastIndexOf(marker);
- assert.ok(cut>=0,'La aplicación conserva su inicializador');
- const forTest=script.slice(0,cut)+String.raw
+ vm.runInNewContext(instrumented,ctx,{filename:'app.js',timeout:3000});
  assert.match(mockNode('#brandLogo').src,/logo-elote-feliz\.webp$/);
  assert.match(mockNode('#heroDog').src,/mascota-feliz\.webp$/);
  assert.match(spice[4].src,/picor-4\.webp$/);
@@ -44,9 +56,8 @@ function checkPage(page){
    assert.match(mockNode('#products').innerHTML,/Elote revolcado/);
    assert.match(mockNode('#products').innerHTML,/Tostitos/);
    assert.doesNotMatch(mockNode('#products').innerHTML,/El Preferido/);
-
-   // Esta es la primera prueba real del cliente: 2 esquites + 3 elotes = $200.
-   assert.equal(ctx.__efTests.getCatalog().find(p=>p.id==='elote').price,40,'El menú debe ignorar los precios de demos anteriores');
+   // La primera compra de prueba: 2 esquites y 3 elotes = $200.
+   assert.equal(ctx.__efTests.getCatalog().find(p=>p.id==='elote').price,40);
    const test=ctx.__efTests.setOrder([
      {id:'esquite',qty:2,sauces:['Macha','Atómica','Arándano con ajo'],spice:'Sin picante',removals:[],note:'¿Se puede extra queso amarillo?'},
      {id:'elote',qty:3,sauces:['Arándano con ajo'],spice:'Medio',removals:['Sin queso'],note:''}
@@ -59,7 +70,7 @@ function checkPage(page){
    assert.match(test.message,/NO incluido en este total/);
    assert.doesNotMatch(test.message,/Sin salsa ·/);
    assert.deepEqual(Array.from(ctx.__efTests.getToppings()),['Sin mayonesa','Sin queso']);
-   // Un revolcado $80 con el extra de Takis $20 debe valer $100 por unidad.
+   // Revolcado $80 + Takis $20: dos unidades por $200.
    const extra=ctx.__efTests.setOrder([{id:'revolcado',qty:2,topoki:true,sauces:[],spice:'Sin picante',removals:[],note:''}]);
    assert.equal(extra.total,200);
    assert.match(extra.message,/\$100 c\/u × 2 = \*\$200\*/);
@@ -69,4 +80,4 @@ function checkPage(page){
  if(page==='ubicacion') assert.match(mockNode('#infoPage').innerHTML,/google\.com\/maps/);
 }
 for(const page of ['inicio','menu','ubicacion'])checkPage(page);
-console.log('Smoke OK: menú, seis salsas, logo, mascotas y mapa');
+console.log('Smoke OK: menú, mascotas, salsas, desglose de pedido y cálculos de $200');
