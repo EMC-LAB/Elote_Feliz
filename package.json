@@ -8,7 +8,8 @@
     "start": "node src/server.js",
     "check": "node --check src/server.js && node --check assets/js/app.js && node --check operacion/panel.js",
     "setup:owner": "node scripts/bootstrap-owner.js",
-    "prestart": "npm run check"
+    "prestart": "npm run check && npm run smoke",
+    "smoke": "node scripts/smoke-test.mjs"
   },
   "engines": {
     "node": ">=20"
