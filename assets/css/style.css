@@ -40,3 +40,7 @@
 
 /* Respetar el extra únicamente cuando el producto permita agregarlo. */
 #topokiRow[hidden]{display:none!important}
+
+/* Ficha de transferencia en menú móvil y escritorio */
+.transfer .transfer-institution{display:block;margin:7px 0;line-height:1.5}
+.transfer code{user-select:all}
