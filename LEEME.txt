@@ -1,0 +1,10 @@
+ELOTE FELIZ — Premium SILO v4 (2026-10-23)
+
+1. Abrir index.html de la carpeta raíz. Navegación explícita index.html incluso desde file://.
+2. Salsas reacomodadas con personajes de picor animados CSS en HD y vapor de comida.
+3. El panel-demo sigue siendo LOCAL y NO está listo para controlar el negocio, ni conectado al número WhatsApp.
+4. Los folios locales no son únicos entre celulares. La implementación real requerirá Postgres y un servidor único.
+5. Paneles de Dueña y Encargado en /operacion cuando se despliegue el backend Node y Postgres.
+6. Los precios/fotografías son ilustrativos y deben validarse con Kas.
+
+Para implementación: ver README.md, db/schema.sql, src/server.js, .env.example. Nunca subir contraseñas ni tokens.
