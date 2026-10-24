@@ -19,3 +19,21 @@
 @media(max-width:860px){.salsa-flex{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}.salsa-heading{grid-column:1/-1;grid-row:auto}.salsa-card:nth-of-type(n){grid-row:auto}.spicy-zone{grid-column:1/-1;grid-row:auto}}
 @media(max-width:580px){.salsa-flex{grid-template-columns:repeat(2,minmax(0,1fr))}.salsa-heading{grid-column:1/-1}.salsa-card:nth-of-type(n){grid-row:auto}.spicy-zone{grid-column:1/-1}.spicy-mascots{gap:2px}.spicy-face{border-radius:10px;padding:1px}.spicy-face img{width:55px;height:70px}.spicy-face small{font-size:9px}}
 @media(prefers-reduced-motion:reduce){.spicy-face img{animation:none!important}}
+
+
+/* Ubicación: ficha original + mapa visible, mascota y diseño pastel */
+.location-layout{display:grid;grid-template-columns:minmax(280px,.85fr) minmax(380px,1.15fr);gap:20px;align-items:stretch;margin-top:12px}
+.nav-page .location-layout .card{max-width:none;width:100%;margin:0;padding:24px;border-radius:24px}
+.location-intro{display:flex;flex-direction:column;min-height:480px}
+.location-intro h2{font-size:clamp(22px,2vw,29px);margin:0 0 16px;color:#275c33}
+.location-intro p{line-height:1.65;font-size:15px}
+.location-button{display:inline-flex;align-self:flex-start;align-items:center;gap:8px;background:#ff3384;color:#fff!important;border-radius:20px;text-decoration:none!important;padding:13px 18px;font-weight:900;box-shadow:0 7px 18px #f37fa35c}
+.location-mascot{display:flex;align-items:center;gap:12px;margin-top:auto;padding-top:20px}
+.location-mascot img{width:145px;height:150px;object-fit:contain;animation:elote-dance 2.6s ease-in-out infinite}
+.location-mascot div{font-weight:900;color:#285b34;background:#eafaeb;border:1px solid #bbe2b2;border-radius:18px;padding:16px;max-width:240px;line-height:1.45}
+.nav-page .location-map{display:flex;flex-direction:column;min-height:480px;padding:12px!important}
+.location-map iframe{width:100%;height:100%;flex:1;min-height:415px;border:0;border-radius:18px;background:#eaf4e4}
+.location-map p{text-align:center;margin:10px 4px 2px;font-size:12px;color:#647560}
+.location-map a{color:#285d31;font-weight:900}
+@media(max-width:860px){.location-layout{grid-template-columns:1fr}.location-intro{min-height:unset}.location-mascot{margin-top:15px}.nav-page .location-map{min-height:400px}.location-map iframe{min-height:370px}}
+@media(max-width:580px){.nav-page .location-layout .card{padding:17px}.location-intro p{font-size:13px}.location-mascot img{width:100px;height:112px}.location-mascot div{font-size:12px;padding:10px}.nav-page .location-map{padding:8px!important;min-height:340px}.location-map iframe{min-height:330px}}
