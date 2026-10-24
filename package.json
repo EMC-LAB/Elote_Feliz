@@ -6,10 +6,10 @@
   "description": "Elote Feliz: menú digital + caja + panel de dueña + WhatsApp Cloud API webhook",
   "scripts": {
     "start": "node src/server.js",
-    "check": "node --check src/server.js && node --check assets/js/app.js && node --check operacion/panel.js",
+    "check": "node --check src/server.js && node --check assets/js/app.js && node --check operacion/panel.js && node --check operacion/demo/demo.js && node --check scripts/demo-smoke.mjs",
     "setup:owner": "node scripts/bootstrap-owner.js",
     "prestart": "npm run check && npm run smoke",
-    "smoke": "node scripts/smoke-test.mjs"
+    "smoke": "node scripts/smoke-test.mjs && node scripts/demo-smoke.mjs"
   },
   "engines": {
     "node": ">=20"
