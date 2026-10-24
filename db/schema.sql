@@ -70,4 +70,4 @@ insert into catalog_products (id,name,category,description,price_cents,extra_top
 ('revolcado','Elote revolcado','especialidades','Elote revolcado a tu gusto. Extra de Takis +$20.',8000,2000,'revolcado.webp'),
 ('tostiesquite','Tostitos','especialidades','Tostitos preparados al estilo Elote Feliz.',6000,0,'tostiesquite.webp'),
 ('buldak','Buldak con esquite','especialidades','Buldak preparado con esquite.',12000,0,'buldak.webp')
-on conflict(id) do update set name=excluded.name,category=excluded.category,description=excluded.description,price_cents=excluded.price_cents,extra_topoki_cents=excluded.extra_topoki_cents,photo_path=excluded.photo_path;
+on conflict(id) do nothing;
