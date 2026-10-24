@@ -37,3 +37,6 @@
 .location-map a{color:#285d31;font-weight:900}
 @media(max-width:860px){.location-layout{grid-template-columns:1fr}.location-intro{min-height:unset}.location-mascot{margin-top:15px}.nav-page .location-map{min-height:400px}.location-map iframe{min-height:370px}}
 @media(max-width:580px){.nav-page .location-layout .card{padding:17px}.location-intro p{font-size:13px}.location-mascot img{width:100px;height:112px}.location-mascot div{font-size:12px;padding:10px}.nav-page .location-map{padding:8px!important;min-height:340px}.location-map iframe{min-height:330px}}
+
+/* Respetar el extra únicamente cuando el producto permita agregarlo. */
+#topokiRow[hidden]{display:none!important}
