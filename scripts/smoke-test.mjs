@@ -26,11 +26,14 @@ function checkPage(page){
  };
  const ctx={
   document:doc,window:{ELOTE_WHATSAPP:'525539100036',addEventListener(){}},
-  localStorage:{getItem(){return null},setItem(){}},
+  localStorage:{getItem(key){return key==='ef_catalog_demo_v3'?JSON.stringify([{id:'elote',name:'Elote',price:1,cat:'elotes',img:'elote'}]):null},setItem(){}},
   location:{hash:'',href:''},navigator:{},console,
   setTimeout(){return 0},clearTimeout(){},
  };
- vm.runInNewContext(script,ctx,{filename:'app.js',timeout:3000});
+ const marker='})();';
+ const cut=script.lastIndexOf(marker);
+ assert.ok(cut>=0,'La aplicación conserva su inicializador');
+ const forTest=script.slice(0,cut)+String.raw
  assert.match(mockNode('#brandLogo').src,/logo-elote-feliz\.webp$/);
  assert.match(mockNode('#heroDog').src,/mascota-feliz\.webp$/);
  assert.match(spice[4].src,/picor-4\.webp$/);
@@ -41,6 +44,27 @@ function checkPage(page){
    assert.match(mockNode('#products').innerHTML,/Elote revolcado/);
    assert.match(mockNode('#products').innerHTML,/Tostitos/);
    assert.doesNotMatch(mockNode('#products').innerHTML,/El Preferido/);
+
+   // Esta es la primera prueba real del cliente: 2 esquites + 3 elotes = $200.
+   assert.equal(ctx.__efTests.getCatalog().find(p=>p.id==='elote').price,40,'El menú debe ignorar los precios de demos anteriores');
+   const test=ctx.__efTests.setOrder([
+     {id:'esquite',qty:2,sauces:['Macha','Atómica','Arándano con ajo'],spice:'Sin picante',removals:[],note:'¿Se puede extra queso amarillo?'},
+     {id:'elote',qty:3,sauces:['Arándano con ajo'],spice:'Medio',removals:['Sin queso'],note:''}
+   ]);
+   assert.equal(test.total,200);
+   assert.match(test.message,/2 × Esquite/);
+   assert.match(test.message,/\$40 c\/u × 2 = \*\$80\*/);
+   assert.match(test.message,/\$40 c\/u × 3 = \*\$120\*/);
+   assert.match(test.message,/TOTAL ESTIMADO: \$200/);
+   assert.match(test.message,/NO incluido en este total/);
+   assert.doesNotMatch(test.message,/Sin salsa ·/);
+   assert.deepEqual(Array.from(ctx.__efTests.getToppings()),['Sin mayonesa','Sin queso']);
+   // Un revolcado $80 con el extra de Takis $20 debe valer $100 por unidad.
+   const extra=ctx.__efTests.setOrder([{id:'revolcado',qty:2,topoki:true,sauces:[],spice:'Sin picante',removals:[],note:''}]);
+   assert.equal(extra.total,200);
+   assert.match(extra.message,/\$100 c\/u × 2 = \*\$200\*/);
+   assert.match(extra.message,/Extras con precio publicado: \$40/);
+   assert.match(extra.message,/Productos: \$160/);
  }
  if(page==='ubicacion') assert.match(mockNode('#infoPage').innerHTML,/google\.com\/maps/);
 }
