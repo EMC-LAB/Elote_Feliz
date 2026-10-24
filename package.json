@@ -7,8 +7,16 @@
   "scripts": {
     "start": "node src/server.js",
     "check": "node --check src/server.js && node --check assets/js/app.js && node --check operacion/panel.js",
-    "setup:owner": "node scripts/bootstrap-owner.js"
+    "setup:owner": "node scripts/bootstrap-owner.js",
+    "prestart": "npm run check"
   },
-  "engines": {"node": ">=20"},
-  "dependencies": {"express": "^4.21.2", "pg": "^8.13.1", "bcryptjs": "^2.4.3", "helmet": "^8.0.0"}
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "pg": "^8.13.1",
+    "bcryptjs": "^2.4.3",
+    "helmet": "^8.0.0"
+  }
 }
