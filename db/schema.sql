@@ -66,10 +66,8 @@ create table if not exists audit_events (
 );
 insert into catalog_products (id,name,category,description,price_cents,extra_topoki_cents,photo_path) values
 ('elote','Elote','elotes','El clásico que siempre hace feliz.',4000,0,'elote.webp'),
-('preferido','El Preferido','elotes','Con salsa macha y queso cotija.',4000,0,'preferido.webp'),
 ('esquite','Esquite','esquites','En vaso, con todo el sabor.',4000,0,'esquite.webp'),
-('tostiesquite','Tostiesquite','esquites','Con esquite, salsas y toppings.',6000,0,'tostiesquite.webp'),
-('buldak','Buldak con esquite','especialidades','Extra de topoki +$30.',12000,3000,'buldak.webp'),
-('revolcado','Elote revolcado','especialidades','2 elotes enteros cortados en rodajas.',8000,0,'revolcado.webp'),
-('taquis','Con orden extra de Taquis','especialidades','Presentación por confirmar.',10000,0,'taquis.webp')
-on conflict(id) do nothing;
+('revolcado','Elote revolcado','especialidades','Elote revolcado a tu gusto. Extra de Takis +$20.',8000,2000,'revolcado.webp'),
+('tostiesquite','Tostitos','especialidades','Tostitos preparados al estilo Elote Feliz.',6000,0,'tostiesquite.webp'),
+('buldak','Buldak con esquite','especialidades','Buldak preparado con esquite.',12000,0,'buldak.webp')
+on conflict(id) do update set name=excluded.name,category=excluded.category,description=excluded.description,price_cents=excluded.price_cents,extra_topoki_cents=excluded.extra_topoki_cents,photo_path=excluded.photo_path;
