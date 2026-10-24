@@ -5,6 +5,7 @@ import bcrypt from 'bcryptjs';
 import crypto from 'node:crypto';
 import {fileURLToPath} from 'node:url';
 import path from 'node:path';
+import {readFile} from 'node:fs/promises';
 
 const app=express();const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const hasDB=!!process.env.DATABASE_URL;
@@ -40,6 +41,8 @@ app.get('/webhooks/whatsapp',(req,res)=>{
  return res.sendStatus(403);
 });
 app.use(express.json({limit:'80kb'}));
+// Archivos internos no se exponen como contenido estático público.
+app.use(['/src','/db','/scripts'],(req,res)=>res.sendStatus(404));
 app.use(express.static(root,{extensions:['html'],index:'index.html',maxAge:process.env.NODE_ENV==='production'?'1h':0}));
 app.get('/api/health',async(req,res)=>{if(!hasDB)return res.json({server:true,database:false,live:false});try{await pool.query('select 1');return res.json({server:true,database:true,live:true})}catch{return jsonError(res,503,'Base de datos sin conexión')}});
 app.get('/api/config',(req,res)=>res.json({whatsapp:detectPhone(process.env.WHATSAPP_NUMBER),onlineOrders:process.env.ALLOW_PUBLIC_ORDERS==='true'&&hasDB}));
@@ -124,4 +127,24 @@ app.post('/api/inventory',auth,owner,async(req,res,next)=>{const {name,unit='pie
 app.post('/api/inventory/:id/move',auth,async(req,res,next)=>{const delta=Number(req.body.delta),reason=String(req.body.reason||'').trim();if(!Number.isFinite(delta)||!delta||Math.abs(delta)>100000||reason.length<3)return jsonError(res,400,'Movimiento inválido');const c=await pool.connect();try{await c.query('begin');const q=await c.query('update inventory_items set quantity=quantity+$1,updated_at=now() where id=$2 returning id,name,quantity',[delta,req.params.id]);if(!q.rowCount)throw new Error('No existe el insumo');await c.query('insert into inventory_movements(item_id,quantity_delta,reason,done_by) values($1,$2,$3,$4)',[req.params.id,delta,reason.slice(0,200),req.user.id]);await audit(c,req.user.id,'ajuste_inventario','inventory',req.params.id,{delta,reason});await c.query('commit');res.json(q.rows[0])}catch(e){await c.query('rollback');jsonError(res,400,e.message)}finally{c.release()}});
 app.post('/api/staff',auth,owner,async(req,res,next)=>{const {email,name,password}=req.body;if(!String(email).includes('@')||!String(name).trim()||String(password||'').length<14)return jsonError(res,400,'Correo, nombre y contraseña de al menos 14 caracteres');try{const pass=await bcrypt.hash(password,12);const q=await pool.query(`insert into staff_users(email,name,password_hash,role) values($1,$2,$3,'staff') returning id,email,name,role`,[String(email).toLowerCase().trim(),String(name).slice(0,80),pass]);res.status(201).json(q.rows[0])}catch(e){next(e)}});
 app.use((err,req,res,next)=>{console.error('API',err);jsonError(res,500,'Error del servidor; revisa los registros')});
-app.listen(process.env.PORT||10000,'0.0.0.0',()=>console.log('Elote Feliz servidor listo · bd:',hasDB?'configurada':'pendiente'));
+async function boot(){
+ if(pool){
+  // En la primera conexión se crean las tablas y productos con SQL idempotente.
+  // La base de datos debe ser EXCLUSIVA de Elote Feliz.
+  const schema=await readFile(path.join(root,'db/schema.sql'),'utf8');
+  await pool.query(schema);
+  const email=String(process.env.OWNER_EMAIL||'').trim().toLowerCase();
+  const password=String(process.env.OWNER_PASSWORD||'');
+  if(email&&password){
+   if(!/^\\S+@\\S+\\.\\S+$/.test(email)||password.length<14)throw Error('OWNER_EMAIL/OWNER_PASSWORD no válidos');
+   const q=await pool.query("select count(*)::int AS n from staff_users where role='owner'");
+   if(q.rows[0].n===0){
+    await pool.query("insert into staff_users(email,name,password_hash,role) values($1,$2,$3,'owner') on conflict(email) do nothing",
+      [email,String(process.env.OWNER_NAME||'Kas').slice(0,80),await bcrypt.hash(password,12)]);
+    console.log('Cuenta de dueña inicializada; retira OWNER_PASSWORD de Render.');
+   }
+  }
+ }
+ app.listen(process.env.PORT||10000,'0.0.0.0',()=>console.log('Elote Feliz servidor listo · bd:',hasDB?'configurada':'pendiente'));
+}
+boot().catch(e=>{console.error('No se pudo inicializar Elote Feliz:',e.message);process.exit(1)});
