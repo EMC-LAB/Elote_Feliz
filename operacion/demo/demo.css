@@ -1,0 +1,12 @@
+
+.demo-banner{border:1px solid #f9c8d7;background:linear-gradient(100deg,#fff0f5,#fff6df);padding:12px 15px;border-radius:15px;margin-bottom:18px;font-size:12px;color:#6a4b55;line-height:1.5}
+.demo-banner b{color:#e82270;letter-spacing:.06em}
+.demo-banner a{color:#91436a;font-weight:800}
+.demo-tools{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.demo-message{font-size:12px;background:#fff8e5;border-radius:10px;padding:9px 12px;color:#694e32;margin:8px 0}
+#simulateWhatsApp{margin:8px 0}
+#demoRole{border:1px solid #eda7c3;background:#fff6f9;font-weight:800}
+.btn-row{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.inventory-entry .pill{white-space:nowrap}
+.demo-flag{font-size:10px;color:#aa255f;display:block;margin-top:4px}
+@media(max-width:700px){.demo-banner{font-size:11px}.user{max-width:45%;flex-wrap:wrap;justify-content:end}.demo-tools{justify-content:end}}
